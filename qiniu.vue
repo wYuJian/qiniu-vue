@@ -14,15 +14,6 @@
             this.gettoken()
         },
         props:{
-            /**
-             * @url 后台token请求地址
-             * 后台返回地址格式
-             * {
-                    "error": 0,
-                    "message": "调用成功",
-                    "token": "xxxxxxxx"
-                }
-            **/
             url:{
                 type:String,
                 default:""
