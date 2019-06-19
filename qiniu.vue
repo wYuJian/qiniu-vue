@@ -62,7 +62,7 @@
                 let upLength=0;
                 //限制上传张数
                 if(filedataLength>this.maxSize){
-                    alert("一次最多上传3张图片");
+                    alert("一次最多上传"+this.maxSize+"张图片");
                     return false
                 }
                 for (let i=0; i<filedataLength;i++){
