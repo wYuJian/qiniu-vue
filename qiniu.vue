@@ -1,5 +1,8 @@
 <template>
-    <input name="file" type="file" ref="qiniu" @change="updata" class="qiniuUpdata"/>
+    <div class="qiniuUpdata">
+        <input name="file" type="file" ref="qiniu" @change="updata"/>
+        <button></button>
+    </div>
 </template>
 
 <script>
@@ -84,5 +87,7 @@
 </script>
 
 <style>
-    input.qiniuUpdata{ width: 100%; height: 100%; opacity: 0}
+    .qiniuUpdata{ width: 100%; height: 100%; display: inline-block; position: relative}
+    .qiniuUpdata input{ width: 100%; height: 100%; opacity: 0; position: absolute; left: 0; top: 0; z-index: 2}
+    .qiniuUpdata button{ width: 20px; height: 20px; position: absolute; right: 0; top: 0; z-index: 3; background: red}
 </style>
