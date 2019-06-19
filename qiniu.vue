@@ -125,7 +125,7 @@
                     .catch(data=>{
                         this.$refs.qiniu.value = null;
                         this.$emit('ok',data);
-                        alert("请确定存储区域，查看地址：https://developer.qiniu.com/kodo/manual/1671/region-endpoint，代码请自行修改")
+                        alert("请确定存储区域查看地址：https://developer.qiniu.com/kodo/manual/1671/region-endpoint，代码请自行修改")
                     })
             }
         }
