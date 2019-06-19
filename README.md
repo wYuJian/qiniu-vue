@@ -25,6 +25,7 @@ import Qiqiu from '@/components/qiniu.vue'
 
 重要 <div class="shangchuan"> 样式自己定义，重要属性position: relative 组件内部必须识别这个属性
 <div class="shangchuan">
-    <Qiqiu :url='"/api/index/index"' @ok="ok"></Qiqiu>
+    上传图片
+    <Qiqiu :url='"/api/index/index"' @ok="ok" :multiple="true" :fileSize="1" :maxSize="1"></Qiqiu>
 </div>
 ```
