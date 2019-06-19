@@ -1,8 +1,5 @@
 <template>
-    <div class="qiniuUpdata">
-        <input name="file" type="file" ref="qiniu" @change="updata"/>
-        <button></button>
-    </div>
+    <input name="file" type="file" ref="qiniu" @change="updata" class="qiniuUpdata" :multiple="multiple"/>
 </template>
 
 <script>
@@ -10,13 +7,19 @@
         name: "qiniu.vue",
         data(){
             return{
-                token:""
+                token:"",
+                updataimg:[]
             }
         },
         mounted(){
             this.gettoken()
         },
         props:{
+            //是否可以传多张图片
+            multiple:{
+                type:Boolean,
+                default:false
+            },
             url:{
                 type:String,
                 default:""
@@ -25,6 +28,16 @@
             prefix:{
                 type: String,
                 default: 'cs_'
+            },
+            //限制最大能上传多少张图片
+            maxSize:{
+                type: Number,
+                default: 3
+            },
+            //限制每个文件大小 单位M
+            fileSize:{
+                type: Number,
+                default: 1
             }
         },
         methods:{
@@ -35,31 +48,57 @@
                 }
                 axios.get(this.url)
                     .then(data=>{
+                        if(!data.token){
+                            alert("获取tonken失败")
+                            return false
+                        }
                         this.token=data.token;
                     })
             },
             //选择图片并上传
             updata:function () {
-                let filetype=this.$refs.qiniu.files[0].type;//获取文件类型
-                if(filetype!='image/gif' && filetype!='image/jpeg' && filetype!='image/png'){//判断是否图片类型
-                    alert("请上传图片类型文件");
+                let filedata=this.$refs.qiniu.files;
+                let filedataLength=filedata.length;
+                let upLength=0;
+                //限制上传张数
+                if(filedataLength>this.maxSize){
+                    alert("一次最多上传3张图片");
                     return false
                 }
+                for (let i=0; i<filedataLength;i++){
+                    //判断文件大小
+                    if(filedata[i].size/1048576>this.fileSize){
+                        alert("您的文件"+filedata[i].name+"文件大小超过了"+this.fileSize+"M"+"请上传小于"+this.fileSize+"M的文件")
+                        return false
+                    }
+                    this.up(filedata[i],i);
+                    upLength++;
+                    if(upLength>=filedataLength){
+                        this.$refs.qiniu.value = null;
+                        this.$emit('ok',this.updataimg);
+                    }
+                }
+            },
+            //上传图片方法
+            up:function (filedata,mark) {
+                if(filedata.type!='image/gif' && filedata.type!='image/jpeg' && filedata.type!='image/png'){//判断是否图片类型
+                    alert("请上传图片类型文件");
+                }
                 let SuffixName="";//文件后缀名
-                switch (filetype) {
+                switch (filedata.type) {
                     case 'image/gif' :
                         SuffixName = '.gif';
                         break;
                     case 'image/jpeg' :
                         SuffixName = '.jpg';
                         break;
-                    case 'image/gif' :
+                    case 'image/png' :
                         SuffixName = '.png';
                         break
                 }
                 var formData = new FormData();
-                formData.append("key", this.prefix+Date.parse(new Date())+SuffixName);
-                formData.append("file", this.$refs.qiniu.files[0]);
+                formData.append("key", this.prefix+Date.parse(new Date())+'_'+mark+SuffixName);
+                formData.append("file", filedata);
                 formData.append("token", this.token);
                 // 华东	z0	服务器端上传：http(s)://up.qiniup.com
                 // 客户端上传： http(s)://upload.qiniup.com
@@ -71,10 +110,17 @@
                 // 客户端上传：http(s)://upload-na0.qiniup.com
                 // 东南亚	as0	服务器端上传：http(s)://up-as0.qiniup.com
                 // 客户端上传：http(s)://upload-as0.qiniup.com
-                axios.post('https://upload.qiniup.com/',formData)
+                axios.post('https://up.qiniup.com/',formData,{
+                    //获取上传进度
+                    onUploadProgress: function (e) {
+                        // console.log(e.loaded / e.total);
+                        // console.log(e)
+                    }
+                })
                     .then(data=>{
-                        this.$emit('ok',data);
-                        this.$refs.qiniu.value = null;
+                        this.updataimg.push(data)
+                        // this.$emit('ok',data);
+                        // this.$refs.qiniu.value = null;
                     })
                     .catch(data=>{
                         this.$refs.qiniu.value = null;
@@ -87,7 +133,5 @@
 </script>
 
 <style>
-    .qiniuUpdata{ width: 100%; height: 100%; display: inline-block; position: relative}
-    .qiniuUpdata input{ width: 100%; height: 100%; opacity: 0; position: absolute; left: 0; top: 0; z-index: 2}
-    .qiniuUpdata button{ width: 20px; height: 20px; position: absolute; right: 0; top: 0; z-index: 3; background: red}
+    input.qiniuUpdata{ width: 100%; height: 100%; opacity: 0; position: absolute; left: 0; top: 0}
 </style>
